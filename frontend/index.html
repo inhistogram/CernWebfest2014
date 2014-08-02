@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="stylesheet" href="css/normalize.css">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/main.css">
+        <script src="js/vendor/modernizr-2.6.2.min.js"></script>
+    </head>
+
+    <body>
+        <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <div class="container">
+            <div class="row clearfix">
+                <div class="col-md-12 column">
+                    <nav class="navbar navbar-default" role="navigation">
+                        <div class="navbar-header">
+                            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                                <span class="sr-only">Toggle navigation</span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                            </button>
+                        </div>
+
+                        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                            <ul class="nav navbar-nav">
+                                <li class="active">
+                                    <a href="#">Home</a>
+                                </li>
+                                <li class="dropdown">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Links<strong class="caret"></strong></a>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a href="#">About</a>
+                                        </li>
+                                        <li>
+                                            <a href="#">Another action</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </nav>
+
+                    <div class="jumbotron">
+                        <h1>
+                            inHistogram
+                        </h1>
+                        <p>
+                            An interactive histogram site
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row clearfix">
+                <div class="col-md-12 column">
+                    <h2>
+                        Histogram 1
+                    </h2>
+                    <div id="histogram1">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row clearfix">
+                <div class="col-md-12 column">
+                    <h2>
+                        Histogram 2
+                    </h2>
+                    <div id="histogram2">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row clearfix">
+                <div class="col-md-12 column">
+                    <h2>
+                        Histogram 3
+                    </h2>
+                    <div id="histogram3">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js"></script>
+
+        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
+        <script src="js/plugins.js"></script>
+        <script src="js/main.js"></script>
+
+        <script>
+            var jsonData;
+            var jsonFn = d3.json("data/data.json", function (error, data) {
+                jsonData = data;
+
+                console.log(jsonData);
+                var values = d3.map(function(data) {
+                    console.log(data.bin_edges);
+                    return data.bin_edges;
+                });
+
+                // A formatter for counts.
+                var formatCount = d3.format(",.0f");
+
+                var margin = {top: 10, right: 30, bottom: 30, left: 30},
+                        width = 960 - margin.left - margin.right,
+                        height = 500 - margin.top - margin.bottom;
+
+                var x = d3.scale.linear()
+                        .domain([0, 1])
+                        .range([0, width]);
+
+                // Generate a histogram using twenty uniformly-spaced bins.
+                var data = d3.layout.histogram()
+                        .bins(x.ticks(20))
+                (values);
+
+                var y = d3.scale.linear()
+                        .domain([0, d3.max(data, function (d) {
+                            return d.y;
+                        })])
+                        .range([height, 0]);
+
+                var xAxis = d3.svg.axis()
+                        .scale(x)
+                        .orient("bottom");
+
+                var svg = d3.select("#histogram1").append("svg")
+                        .attr("width", width + margin.left + margin.right)
+                        .attr("height", height + margin.top + margin.bottom)
+                        .append("g")
+                        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+                var bar = svg.selectAll(".bar")
+                        .data(data)
+                        .enter().append("g")
+                        .attr("class", "bar")
+                        .attr("transform", function (d) {
+                            return "translate(" + x(d.x) + "," + y(d.y) + ")";
+                        });
+
+                bar.append("rect")
+                        .attr("x", 1)
+                        .attr("width", x(data[0].dx) - 1)
+                        .attr("height", function (d) {
+                            return height - y(d.y);
+                        });
+
+                bar.append("text")
+                        .attr("dy", ".75em")
+                        .attr("y", 6)
+                        .attr("x", x(data[0].dx) / 2)
+                        .attr("text-anchor", "middle")
+                        .text(function (d) {
+                            return formatCount(d.y);
+                        });
+
+                svg.append("g")
+                        .attr("class", "x axis")
+                        .attr("transform", "translate(0," + height + ")")
+                        .call(xAxis);
+
+            });
+        </script>
+    </body>
+</html>
