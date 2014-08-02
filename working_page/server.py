@@ -55,7 +55,8 @@ class Application(tornado.web.Application):
             ]
 
         settings = {
-            'template_path': 'templates'
+            'template_path': 'templates',
+            'autoreload' : True
         }
         tornado.web.Application.__init__(self, handlers, **settings)
 

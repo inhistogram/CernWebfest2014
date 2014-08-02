@@ -38,11 +38,14 @@ var w = 600;
 var h = 250;
 
 
+var histdata;
+var ids = Array();
+
 socket = new WebSocket('ws://localhost:8081/websocket');
 socket.onmessage = function (event) {
   console.log(event.data);
-  var histdata = JSON.parse(event.data);
-  console.log(histdata)
+  histdata = JSON.parse(event.data);
+  ids.push(histdata.name);
   plotHist(histdata);
 }
 
@@ -50,6 +53,8 @@ socket.onmessage = function (event) {
 
 
 function plotHist(dataset) {
+
+console.log(dataset.name)
 
 var xScale = d3.scale.ordinal()
 				.domain(d3.range(dataset.value.length))
@@ -63,7 +68,8 @@ var yScale = d3.scale.linear()
 var svg = d3.select("body")
 			.append("svg")
 			.attr("width", w)
-			.attr("height", h);
+			.attr("height", h)
+      .attr("id", dataset.name);
 
 //Create bars
 svg.selectAll("rect")
