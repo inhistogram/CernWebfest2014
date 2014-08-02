@@ -43,8 +43,8 @@ rect:hover{
 var w = 600;
 var h = 250;
 var hMini = h/4;
-var histdata;
-var ids = Array();
+//var histdata;
+var hGroup = {};
 
 socket = new WebSocket('ws://localhost:8081/websocket');
 socket.onmessage = function (event) {
@@ -61,14 +61,14 @@ function plotHist(dataset) {
 console.log(dataset.name)
 
 var xScale = d3.scale.ordinal()
-				.domain(d3.range(dataset.value.length))
-				.rangeRoundBands([0, w], 0.05); 
+	.domain(d3.range(dataset.value.length))
+	.rangeRoundBands([0, w], 0.05); 
 
 var yScale = d3.scale.linear()
-				.domain([0, d3.max(dataset.value)])
-				.range([0, h]);
+	.domain([0, d3.max(dataset.value)])
+	.range([0, h]);
 
-  var yScaleMini = d3.scale.linear()
+var yScaleMini = d3.scale.linear()
   .domain([0, d3.max(dataset.value)])
   .range([0, hMini]);
 
@@ -200,9 +200,13 @@ svgMini.selectAll("text")
 .attr("fill", "white");
 
 
+console.log(dataset.edges)
+console.log("##"+dataset.edges[dataset.edges.length-1])
+
 //Brushing
 brushX = d3.scale.linear()
-.range([0, d3.max(dataset.value)]);
+  .domain([dataset.edges[0],dataset.edges[dataset.edges.length-1]])
+  .range([0, w]);
 
 var  brush = d3.svg.brush()
   .x(brushX)
@@ -210,21 +214,20 @@ var  brush = d3.svg.brush()
   
 svgMini.append("g")
   .attr("class", "brush")
+  .attr("id", dataset.name + "MiniBrush")
   .call(brush)
   .selectAll('rect')
   .attr('height', h);
 
-tuple = [dataset.name, dataset.name + "Mini", brush]
 
-ids.push(tuple);
+hGroup[dataset.name] = {"xScale": xScale, "yScale": yScale, "brush": brush , "brushX" : brushX };
 
 }
 
 function brushed() {
 
-  console.log("# " + this.parent + " #");
-  lastBrush = ids[ids.length - 1][2]; //Last one
-  console.log(lastBrush.extent());
+  console.log(hGroup[this.id.replace("MiniBrush","")].brush.extent());
+
 }
 
 var sortOrder = false;

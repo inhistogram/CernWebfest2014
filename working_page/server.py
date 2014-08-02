@@ -22,7 +22,7 @@ def CenterBinEdges(hist):
 
 def HistJson( histname, hist):
     valuejson = '"value": '+ SimpleEncode(hist[0])
-    centerjson = '"key": '+ SimpleEncode(CenterBinEdges(hist))
+    centerjson = '"edges": '+ SimpleEncode(hist[1])
     histjson = '{ "name": \"'+histname+'\",'+ valuejson + ',' + centerjson +' }'
     return histjson
 
