@@ -1,19 +1,18 @@
 from bottle import run, post, request
+from functions import *
 
 @post('/webfest')
 def read_json():
 
-    if (request.json['name'] == 'hello_world'):
-        print "Hello World!"
+    name = request.json['name']
 
-        #Automagic conversion from dict to JSON
-        return {'status':'OK', 'response':'Hello world!'}
+    if name in allowed_functions:
+
+        return allowed_functions[name]()
 
     else:
-        print "Not a nice thing to say .-."
 
-        #Automagic conversion from dict to JSON
-        return {'status':'Not OK', 'response':'Duck you too!'}
+        return error()
 
 
 run(host='localhost', port=8080, debug=True)
