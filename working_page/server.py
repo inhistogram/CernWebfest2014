@@ -51,7 +51,9 @@ class Application(tornado.web.Application):
         handlers = [
             (r'/', IndexPageHandler),
             (r'/websocket', WSHandler),
-            (r'/data/(.*)', tornado.web.StaticFileHandler, dict(path = "data"),)
+            (r'/data/(.*)', tornado.web.StaticFileHandler, dict(path = "data")),
+            (r'/css/(.*)', tornado.web.StaticFileHandler, dict(path = "css")),
+            (r'/js/(.*)', tornado.web.StaticFileHandler, dict(path = "js"))
             ]
 
         settings = {
