@@ -2,6 +2,10 @@
 import tornado.ioloop
 import tornado.web
 import tornado.websocket
+import tornado.httpserver
+
+import os.path
+import mimetypes
 
 
 class WSHandler(tornado.websocket.WebSocketHandler):
@@ -13,11 +17,31 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
     def on_message(self, message):
         print "Received:", message
+        self.write_message(u"Your message was: " + message)
 
     def on_close(self):
         print "WebSocket closed"
 
+
+class Application(tornado.web.Application):
+    def __init__(self):
+        handlers = [
+            (r'/', IndexPageHandler),
+            (r'/websocket', WSHandler),
+            (r'/data/(.*)', tornado.web.StaticFileHandler, dict(path = "data"),)
+            ]
+
+        settings = {
+            'template_path': 'templates'
+        }
+        tornado.web.Application.__init__(self, handlers, **settings)
+
+class IndexPageHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.render("index.html")
+
 if __name__ == "__main__":
-    application = tornado.web.Application([(r"/", WSHandler), ])
-    application.listen(8081)
+    ws_app = Application()
+    http_server = tornado.httpserver.HTTPServer(ws_app)
+    ws_app.listen(8081)
     tornado.ioloop.IOLoop.instance().start()
