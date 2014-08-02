@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>inHistogram</title>
+
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/inhistogram.css">
+
+</head>
+
+<body>
+    <div class="container">
+        <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li class="active">
+                        <a href="#">Home</a>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Links<strong class="caret"></strong></a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="#">About</a>
+                            </li>
+                            <li>
+                                <a href="#">Another action</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <div class="row clearfix">
+            <div class="col-md-12 column">
+                <h1>
+                    inHistogram
+                </h1>
+                <p>
+                    An interactive histogram site
+                </p>
+            </div>
+        </div>
+
+        <div class="row clearfix">
+            <div class="col-md-12 column">
+                <h2>
+                    Histogram
+                </h2>
+                <div id="chart"></div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js"></script>
+    <script src="js/vendor/modernizr-2.6.2.min.js"></script>
+    <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
+    <script src="js/plugins.js"></script>
+    <script src="js/main.js"></script>
+
+
+    <script type="text/javascript">
+
+    var w = 600;
+    var h = 250;
+
+
+    var histdata;
+    var ids = Array();
+
+    socket = new WebSocket('ws://localhost:8081/websocket');
+    socket.onmessage = function (event) {
+      console.log(event.data);
+      histdata = JSON.parse(event.data);
+      ids.push(histdata.name);
+      plotHist(histdata);
+    }
+
+
+
+
+    function plotHist(dataset) {
+
+    console.log(dataset.name)
+
+    var xScale = d3.scale.ordinal()
+                    .domain(d3.range(dataset.value.length))
+                    .rangeRoundBands([0, w], 0.05);
+
+    var yScale = d3.scale.linear()
+                    .domain([0, d3.max(dataset.value)])
+                    .range([0, h]);
+
+    //Create SVG element
+    var svg = d3.select("body")
+                .append("svg")
+                .attr("width", w)
+                .attr("height", h)
+          .attr("id", dataset.name);
+
+    //Create bars
+    svg.selectAll("rect")
+       .data(dataset.value, function(d) { return d; })
+       .enter()
+       .append("rect")
+       .attr("x", function(d, i) {
+            return xScale(i);
+       })
+       .attr("y", function(d) {
+            return h - yScale(d);
+       })
+       .attr("width", xScale.rangeBand())
+       .attr("height", function(d) {
+            return yScale(d);
+       })
+       .attr("fill", function(d) {
+            return "rgb(0, 0, " + (d * 10) + ")";
+       })
+
+        //Tooltip
+        .on("mouseover", function(d) {
+            //Get this bar's x/y values, then augment for the tooltip
+            var xPosition = parseFloat(d3.select(this).attr("x")) + xScale.rangeBand() / 2;
+            var yPosition = parseFloat(d3.select(this).attr("y")) + 14;
+
+            //Update Tooltip Position & value
+            d3.select("#tooltip")
+                .style("left", xPosition + "px")
+                .style("top", yPosition + "px")
+                .select("#value")
+                .text(d);
+            d3.select("#tooltip").classed("hidden", false)
+        })
+        .on("mouseout", function() {
+            //Remove the tooltip
+            d3.select("#tooltip").classed("hidden", true);
+        })	;
+
+    //Create labels
+    svg.selectAll("text")
+       .data(dataset.value, function(d) { return d; })
+       .enter()
+       .append("text")
+       .text(function(d) {
+            return d;
+       })
+       .attr("text-anchor", "middle")
+       .attr("x", function(d, i) {
+            return xScale(i) + xScale.rangeBand() / 2;
+       })
+       .attr("y", function(d) {
+            return h - yScale(d) + 14;
+       })
+       .attr("font-family", "sans-serif")
+       .attr("font-size", "11px")
+       .attr("fill", "white");
+    }
+
+    var sortOrder = false;
+    function sortBars() {
+        sortOrder = !sortOrder;
+
+        sortItems = function (a, b) {
+            if (sortOrder) {
+                return a - b;
+            }
+            return b - a;
+        };
+
+        svg.selectAll("rect")
+            .sort(sortItems)
+            .transition()
+            .delay(function (d, i) {
+            return i * 50;
+        })
+            .duration(1000)
+            .attr("x", function (d, i) {
+            return xScale(i);
+        });
+
+        svg.selectAll('text')
+            .sort(sortItems)
+            .transition()
+            .delay(function (d, i) {
+            return i * 50;
+        })
+            .duration(1000)
+            .text(function (d) {
+            return d;
+        })
+            .attr("text-anchor", "middle")
+            .attr("x", function (d, i) {
+            return xScale(i) + xScale.rangeBand() / 2;
+        })
+            .attr("y", function (d) {
+            return h - yScale(d) + 14;
+        });
+    };
+    // Add the onclick callback to the button
+    d3.select("#sort").on("click", sortBars);
+    d3.select("#reset").on("click", reset);
+    function randomSort() {
+
+
+        svg.selectAll("rect")
+            .sort(sortItems)
+            .transition()
+            .delay(function (d, i) {
+            return i * 50;
+        })
+            .duration(1000)
+            .attr("x", function (d, i) {
+            return xScale(i);
+        });
+
+        svg.selectAll('text')
+            .sort(sortItems)
+            .transition()
+            .delay(function (d, i) {
+            return i * 50;
+        })
+            .duration(1000)
+            .text(function (d) {
+            return d;
+        })
+            .attr("text-anchor", "middle")
+            .attr("x", function (d, i) {
+            return xScale(i) + xScale.rangeBand() / 2;
+        })
+            .attr("y", function (d) {
+            return h - yScale(d) + 14;
+        });
+    }
+
+    function reset() {
+        svg.selectAll("rect")
+            .sort(function(a, b){
+                return a - b;
+            })
+            .transition()
+            .delay(function (d, i) {
+            return i * 50;
+            })
+            .duration(1000)
+            .attr("x", function (d, i) {
+            return xScale(i);
+            });
+
+        svg.selectAll('text')
+            .sort(function(a, b){
+                return a - b;
+            })
+            .transition()
+            .delay(function (d, i) {
+            return i * 50;
+        })
+            .duration(1000)
+            .text(function (d) {
+            return d;
+        })
+            .attr("text-anchor", "middle")
+            .attr("x", function (d, i) {
+            return xScale(i) + xScale.rangeBand() / 2;
+        })
+            .attr("y", function (d) {
+            return h - yScale(d) + 14;
+        });
+    };
+    </script>
+</body>
+
+</html>
