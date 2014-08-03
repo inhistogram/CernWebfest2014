@@ -1,3 +1,7 @@
+function checkboxTick(element){
+    msg={"var":element.parentElement.innerText, "bin_edges":"", "selection": "" };
+    socket.send(JSON.stringify(msg))
+}
 
 function main() {
 
@@ -5,17 +9,38 @@ var w = 600;
 var h = 250;
 var lowerMarginY = 30;
 var hGroup = {};
-
+var varNames;
+d3.json("/variables/name", function(error, json) {
+  if (error) return console.warn(error);
+  console.log(json);
+  varNames = json;
+  console.log(varNames);
+});
+varNames={"varNames": ["D0_MM", "D0_PT", "D0_TAU", "D0_MINIPCHI2", "D0_DIRA_OWNPV", "nPV", "D0_MINIP", "piminus_PT", "piminus_ProbNNpi", "piminus_ProbNNk", "Kplus_PT", "Kplus_ProbNNpi", "Kplus_ProbNNk"]}    
+drawTable(varNames);
 socket = new WebSocket('ws://localhost:8081/websocket');
 socket.onmessage = function (event) {
-  //console.log(event.data);
+  console.log(event.data);
   histdata = JSON.parse(event.data);
   plotHist(histdata);
 }
+function drawTable(arrayNames){
+    var array = d3.range(arrayNames.varNames.length)
+    var table = d3.select('#table');
+    table.selectAll("div").attr("class","checkbox").data(array, function(d) { return d; })
+   .enter()
+   .append("label").style("display", "block")
+    .text(function(d) { 
+       return arrayNames.varNames[d]; })
+   .append("input")
+   .attr("type","checkbox").attr("onclick","checkboxTick(this)")
+}
+    
+
 
 function plotHist(dataset) {
 
-//console.log(dataset.name)
+console.log(dataset.name)
 
 var xScale = d3.scale.ordinal()
 	.domain(d3.range(dataset.value.length))
@@ -26,7 +51,7 @@ var yScale = d3.scale.linear()
 	.range([0, h]);
 
 //Create SVG element
-var svg = d3.select("body")
+var svg = d3.select("#histograms")
 			.append("svg")
 			.attr("width", w + 20)
 			.attr("height", h + 50) //+50 for the axis
@@ -144,9 +169,9 @@ hGroup[dataset.name] = {"xScale": xScale, "yScale": yScale, "brush": brush , "br
 
 function brushed() {
   var msg = {};
-
-  msg['histID']= this.id.replace("MiniBrush","");
-  msg['xSelection'] = hGroup[this.id.replace("MiniBrush","")].brush.extent();
+  msg['var']= this.id.replace("MiniBrush","");
+  msg['bin_edges']= "";
+  msg['selection'] = hGroup[this.id.replace("MiniBrush","")].brush.extent();
  
   console.log(msg["xSelection"]);
   socket.send(JSON.stringify(msg));
