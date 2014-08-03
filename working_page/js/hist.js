@@ -29,19 +29,21 @@ var yScaleMini = d3.scale.linear()
   .range([0, hMini]);
 
 //Create SVG element
-var svg = d3.select('body')
+var svg = d3.select('#histograms')
 			.append('svg')
 			.attr('width', w)
 			.attr('height', h)
       .attr('id', dataset.name);
 
-var svgMini = d3.select('body')
+var svgMini = d3.select('#histograms')
   .append('svg')
   .attr('width', w)
   .attr('height', hMini)
   .attr('id', dataset.name + 'Mini');
 
+draw(svg,dataset);
 
+function draw(svg, dataset) {
 //Create bars
 svg.selectAll('rect')
    .data(dataset.value, function(d) { return d; })
@@ -59,26 +61,7 @@ svg.selectAll('rect')
    })
    .attr('fill', function(d) {
 		return 'rgb(0, 0, ' + (d * 10) + ')';
-   })
-
-	//Tooltip
-	.on('mouseover', function(d) {
-		//Get this bar's x/y values, then augment for the tooltip
-		var xPosition = parseFloat(d3.select(this).attr('x')) + xScale.rangeBand() / 2;
-		var yPosition = parseFloat(d3.select(this).attr('y')) + 14;
-
-		//Update Tooltip Position & value
-		d3.select('#tooltip')
-			.style('left', xPosition + 'px')
-			.style('top', yPosition + 'px')
-			.select('#value')
-			.text(d);
-		d3.select('#tooltip').classed('hidden', false);
-	})
-	.on('mouseout', function() {
-		//Remove the tooltip
-		d3.select('#tooltip').classed('hidden', true);
-	});
+   });
 
  svgMini.selectAll('rect')
   .data(dataset.value, function(d) { return d; })
@@ -96,25 +79,6 @@ svg.selectAll('rect')
   })
   .attr('fill', function(d) {
     return 'rgb(0, 0, ' + (d * 10) + ')';
-  })
-
-  //Tooltip
-  .on('mouseover', function(d) {
-    //Get this bar's x/y values, then augment for the tooltip
-    var xPosition = parseFloat(d3.select(this).attr('x')) + xScale.rangeBand() / 2;
-    var yPosition = parseFloat(d3.select(this).attr('y')) + 14;
-
-    //Update Tooltip Position & value
-    d3.select('#tooltip')
-    .style('left', xPosition + 'px')
-    .style('top', yPosition + 'px')
-    .select('#value')
-    .text(d);
-    d3.select('#tooltip').classed('hidden', false);
-  })
-  .on('mouseout', function() {
-    //Remove the tooltip
-    d3.select('#tooltip').classed('hidden', true);
   });
 
 //Create labels
@@ -155,10 +119,6 @@ svgMini.selectAll('text')
 .attr('font-size', '11px')
 .attr('fill', 'white');
 
-
-console.log(dataset.edges);
-console.log('##' + dataset.edges[dataset.edges.length - 1]);
-
 //Brushing
 brushX = d3.scale.linear()
   .domain([dataset.edges[0], dataset.edges[dataset.edges.length - 1]])
@@ -178,123 +138,40 @@ svgMini.append('g')
 
 hGroup[dataset.name] = {'xScale': xScale, 'yScale': yScale, 'brush': brush, 'brushX' : brushX };
 
-}
+
 
 function brushed() {
 
-  console.log(hGroup[this.id.replace('MiniBrush', '')].brush.extent());
+  var idBigOne = this.id.replace('MiniBrush', '');
+  console.log(hGroup[idBigOne].brush.extent());
+  var svg = d3.select('#' + idBigOne);
+  draw(svg, dataset);
+
+  }
+ }
+}
+}
+  //Tooltip
+/*
+  .on('mouseover', function(d) {
+    //Get this bar's x/y values, then augment for the tooltip
+    var xPosition = parseFloat(d3.select(this).attr('x')) + xScale.rangeBand() / 2;
+    var yPosition = parseFloat(d3.select(this).attr('y')) + 14;
+
+    //Update Tooltip Position & value
+    d3.select('#tooltip')
+    .style('left', xPosition + 'px')
+    .style('top', yPosition + 'px')
+    .select('#value')
+    .text(d);
+    d3.select('#tooltip').classed('hidden', false);
+  })
+  .on('mouseout', function() {
+    //Remove the tooltip
+    d3.select('#tooltip').classed('hidden', true);
+  });
 
 }
-
-var sortOrder = false;
-function sortBars() {
-    sortOrder = !sortOrder;
-
-    sortItems = function(a, b) {
-        if (sortOrder) {
-            return a - b;
-        }
-        return b - a;
-    };
-
-    svg.selectAll('rect')
-        .sort(sortItems)
-        .transition()
-        .delay(function(d, i) {
-        return i * 50;
-    })
-        .duration(1000)
-        .attr('x', function(d, i) {
-        return xScale(i);
-    });
-
-    svg.selectAll('text')
-        .sort(sortItems)
-        .transition()
-        .delay(function(d, i) {
-        return i * 50;
-    })
-        .duration(1000)
-        .text(function(d) {
-        return d;
-    })
-        .attr('text-anchor', 'middle')
-        .attr('x', function(d, i) {
-        return xScale(i) + xScale.rangeBand() / 2;
-    })
-        .attr('y', function(d) {
-        return h - yScale(d) + 14;
-    });
-};
-// Add the onclick callback to the button
-d3.select('#sort').on('click', sortBars);
-d3.select('#reset').on('click', reset);
-function randomSort() {
+*/
 
 
-	svg.selectAll('rect')
-        .sort(sortItems)
-        .transition()
-        .delay(function(d, i) {
-        return i * 50;
-    })
-        .duration(1000)
-        .attr('x', function(d, i) {
-        return xScale(i);
-    });
-
-    svg.selectAll('text')
-        .sort(sortItems)
-        .transition()
-        .delay(function(d, i) {
-        return i * 50;
-    })
-        .duration(1000)
-        .text(function(d) {
-        return d;
-    })
-        .attr('text-anchor', 'middle')
-        .attr('x', function(d, i) {
-        return xScale(i) + xScale.rangeBand() / 2;
-    })
-        .attr('y', function(d) {
-        return h - yScale(d) + 14;
-    });
-}
-
-function reset() {
-	svg.selectAll('rect')
-		.sort(function(a, b) {
-			return a - b;
-		})
-		.transition()
-        .delay(function(d, i) {
-        return i * 50;
-		})
-        .duration(1000)
-        .attr('x', function(d, i) {
-        return xScale(i);
-		});
-
-	svg.selectAll('text')
-        .sort(function(a, b) {
-			return a - b;
-		})
-        .transition()
-        .delay(function(d, i) {
-        return i * 50;
-    })
-        .duration(1000)
-        .text(function(d) {
-        return d;
-    })
-        .attr('text-anchor', 'middle')
-        .attr('x', function(d, i) {
-        return xScale(i) + xScale.rangeBand() / 2;
-    })
-        .attr('y', function(d) {
-        return h - yScale(d) + 14;
-    });
-};
-
-}
