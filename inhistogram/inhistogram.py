@@ -71,7 +71,9 @@ class Application(tornado.web.Application):
             (r'/websocket', WSHandler),
             (r'/variables/name', GetListVarNamesHandler),
             (r'/variables/info', GetVarInfoHandler),
-            (r'/data/(.*)', tornado.web.StaticFileHandler, dict(path = "data"),)
+            (r'/data/(.*)', tornado.web.StaticFileHandler, dict(path = "data")),
+            (r'/css/(.*)', tornado.web.StaticFileHandler, dict(path = "frontend/css")),
+            (r'/js/(.*)', tornado.web.StaticFileHandler, dict(path = "frontend/js"))
             ]
 
         settings = {
@@ -102,12 +104,6 @@ class GetVarInfoHandler(tornado.web.RequestHandler):
 dataset = np.load("data/LHCbData.npy")
 arr1 = dataset['D0_PT']
 arr2 = dataset['D0_TAU']
-
-
-answer = {}
-answer["varNames"] = getListVarNames(dataset)
-
-print  getVarInfo(dataset)
 
 hist1 = np.histogram(arr1, bins = 20, range = (0., 20000))
 hist2 = np.histogram(arr2, bins = 20, range = (0., 0.020))
