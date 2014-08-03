@@ -8,17 +8,14 @@ var hGroup = {};
 
 socket = new WebSocket('ws://localhost:8081/websocket');
 socket.onmessage = function (event) {
-  console.log(event.data);
+  //console.log(event.data);
   histdata = JSON.parse(event.data);
   plotHist(histdata);
 }
 
-
-
-
 function plotHist(dataset) {
 
-console.log(dataset.name)
+//console.log(dataset.name)
 
 var xScale = d3.scale.ordinal()
 	.domain(d3.range(dataset.value.length))
@@ -31,8 +28,8 @@ var yScale = d3.scale.linear()
 //Create SVG element
 var svg = d3.select("body")
 			.append("svg")
-			.attr("width", w)
-			.attr("height", h)
+			.attr("width", w + 20)
+			.attr("height", h + 50) //+50 for the axis
       .attr("id", dataset.name);
 
 //Create bars
@@ -80,7 +77,7 @@ var xAxisScale = d3.scale.ordinal()
 
 
 //Create labels
-svg.selectAll("text")
+/*svg.selectAll("text")
    .data(dataset.edges, function(d) { return d; })
    .enter()
    .append("text")
@@ -97,6 +94,30 @@ svg.selectAll("text")
    .attr("font-family", "sans-serif") 
    .attr("font-size", "9px")
    .attr("fill", "black");
+*/
+
+//Axis
+var stepSize = (dataset.edges[1] - dataset.edges[0]);
+
+var trueXAxisScale = d3.scale.ordinal()
+  .domain(d3.range(0, dataset.edges[dataset.edges.length - 1], stepSize))
+  .rangeRoundBands([0, w-2], 0.); 
+
+var bandSize = xAxisScale.rangeBand()/2;
+
+var xAxis = d3.svg.axis()
+  .scale(trueXAxisScale)
+  .orient("bottom")
+  .ticks(5);
+
+svg.append("g")
+  .attr("class", "x_axis")
+  .attr("transform", "translate(-" + bandSize + "," + (h-25) + ")")
+  .call(xAxis)
+  .selectAll("text")
+  .attr("transform", function(d) {
+    return "translate(5,5) rotate(20)";
+  });
 
 
 //Brushing
