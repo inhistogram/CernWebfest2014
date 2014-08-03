@@ -122,10 +122,10 @@ var xAxisScale = d3.scale.ordinal()
 */
 
 //Axis
-var stepSize = (dataset.edges[1] - dataset.edges[0]);
+var stepSize = (dataset.edges[1] - dataset.edges[0]).toPrecision(4);
 
 var trueXAxisScale = d3.scale.ordinal()
-  .domain(d3.range(0, dataset.edges[dataset.edges.length - 1], stepSize))
+  .domain(d3.range(0, dataset.edges[dataset.edges.length - 1].toPrecision(4), stepSize))
   .rangeRoundBands([0, w-2], 0.); 
 
 var bandSize = xAxisScale.rangeBand()/2;
