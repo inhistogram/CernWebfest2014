@@ -1,43 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<title>inhistogram</title>
-	<link rel="stylesheet" type="text/css" href="css/hist.css"></link>
+    <title>inhistogram</title>
+    <link rel="stylesheet" type="text/css" href="css/hist.css"></link>
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
     <!-- Optional theme -->
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
-    <!--<link rel="stylesheet" href="css/main.css">-->
+
     <link rel="stylesheet" href="css/inhistogram.css">
-	<script type="text/javascript" src="js/main.js"/></script>
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js"></script>
-    <!--<script src="js/vendor/modernizr-2.6.2.min.js"></script>-->
-    <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
-        <!--<script src="js/plugins.js"></script>
-        <script src="js/main.js"></script>-->
-
-
 </head>
-<body onload="main()">
-    <div class="container">
-        <h1>Inhistogram</h1>
-    <h2>Interactive histograms</h2>
-        <hr/>
-        <div class="row">
-            <div id="table" class="col-md-3 form-group">
-                <h2>Values</h2>
-                <hr/>
-            </div>
-            <div class="col-md-6" style="border: solid 1px">
-                <div id="histograms" style="width:100%"></div>
-            </div>
-            <div class="col-md-3"></div>
+
+<body>
+<div class="container">
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
         </div>
+
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li class="active">
+                    <a href="index.html">Home</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <h1>inHistogram</h1>
+
+    <h2>Interactive histograms</h2>
+
+    <hr/>
+
+    <div class="row">
+        <div id="table" class="col-md-3 form-group">
+            <h2>Values</h2>
+
+            <hr/>
+
+        </div>
+
+        <div class="col-md-6" style="border: solid 1px">
+            <div id="histograms" style="width:100%"></div>
+        </div>
+
+        <div class="col-md-3"></div>
     </div>
- 	
+</div>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js"></script>
+<script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
+
+<script src="js/main.js"></script>
+
+<script>
+        $(function() {
+            console.log('Page ready, loading main() function.');
+            main();
+        });
+</script>
+
 </body>
-	
-        
+
+
 </html>
