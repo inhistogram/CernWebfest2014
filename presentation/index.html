@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>inHistogram</title>
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="css/reveal.min.css">
+    <link rel="stylesheet" href="css/theme/default.css" id="default_theme">
+    <link rel="stylesheet" href="css/theme/serif.css" id="theme">
+
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <style>
+        #col_list {
+            -webkit-columns: 3;
+            -moz-columns: 3;
+            columns: 3;
+            height: 300px;
+        }
+    </style>
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+        document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+    </script>
+</head>
+
+<body>
+
+<div class="reveal">
+    <div class="slides">
+        <section>
+            <h1>inHistogram</h1>
+            <p>&nbsp;</p>
+            <h4>Interactive histograms using d3.js computed on your local machine or via a cloud instance.</h4>
+            <p>&nbsp;</p>
+            <p>
+                <small>by Pablo de Castro, Xavier Valls, Pablo Jiménez, Nitin Agarwal, Daniel Lemon</small>
+            </p>
+        </section>
+
+        <section data-transition="zoom">
+            <h2>How is this different to anything else?</h2>
+            <p>
+                In the past, we would use dc.js and/or crossfilter.js which allows you to do all the computations in the web browser;
+            </p>
+            <p>&nbsp;</p>
+            <p>
+                However it is not great if you want to analyze huge amounts of data (e.g. 3 GB of data)
+            </p>
+        </section>
+
+        <section data-background="#FF8B8B">
+            <h2>Therefore...</h2>
+            <p>
+                We built an interface on top of tornado (python web server) and do all the computations locally, but show the results on a local site that presents the data using d3.js
+            </p>
+        </section>
+
+        <section data-background="#F79747">
+            <p>
+                We have a set of histograms and we allow users to select a sub-set of the histogram and see how the data changes.
+            </p>
+            <p>
+                We don’t use a database because we allow users to create their own scripts
+            </p>
+            <p>
+                We allow you to work on high volume data, locally.
+            </p>
+        </section>
+
+        <section data-background="#A8E0D1">
+            <h2>Status of the project</h2>
+            <p>Over the weekend, we created a working prototype to show that our idea is possible.</p>
+            <p>This is a complex architecture that is built on top of tornado and uses web sockets to communicate with the client browser, and d3.js for the visualization of the histograms.</p>
+        </section>
+
+        <section data-background="#C5B2EC">
+            <p>Currently we have the built the architecture to support Numpy files, however we can easily integrate ROOT.</p>
+            <p>The inhistogram.py file loads the tornado server, there we have a working interactive front end view that displays the Numpy data as histograms, we will extend this to include any other type of visualization (bar, 3D histogram, tree, graphs, time-series etc.).</p>
+            <p>A user can select a sub-set or different variables of the histogram from the site, and using web sockets this will update the histograms with the computed data.</p>
+        </section>
+
+        <section>
+            <h2>Fin.</h2>
+            <p><code>echo $h->t; // prints 'any questions?'</code></p>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+        </section>
+
+    </div>
+
+</div>
+
+<script src="lib/js/head.min.js"></script>
+<script src="js/reveal.min.js"></script>
+
+<script>
+    // Full list of configuration options available here:
+    // https://github.com/hakimel/reveal.js#configuration
+    Reveal.initialize({
+        controls: false,
+        progress: true,
+        history: true,
+        center: true,
+        hideAddressBar: true,
+        touch: true,
+        previewLinks: true,
+
+        theme: 'serif', // available themes are in /css/theme
+        transition: 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+            { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+            { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+            { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+            { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+            { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+            { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+        ]
+    });
+
+</script>
+
+</body>
+</html>
