@@ -50,76 +50,12 @@ var yScale = d3.scale.linear()
 	.domain([0, d3.max(dataset.value)])
 	.range([0, h]);
 
-//Create SVG element
-var svg = d3.select("#histograms")
-			.append("svg")
-			.attr("width", w + 20)
-			.attr("height", h + 50) //+50 for the axis
-      .attr("id", dataset.name);
-
-//Create bars
-svg.selectAll("rect")
-   .data(dataset.value, function(d) { return d; })
-   .enter()
-   .append("rect")
-   .attr("x", function(d, i) {
-		return xScale(i);
-   })
-   .attr("y", function(d) {
-		return h - lowerMarginY - yScale(d);
-   })
-   .attr("width", xScale.rangeBand())
-   .attr("height", function(d) {
-		return yScale(d);
-   })
-   .attr("fill", function(d) {
-		return "rgb(0, 0, " + (d * 10) + ")";
-   })
-
-	//Tooltip
-	.on("mouseover", function(d) {
-		//Get this bar's x/y values, then augment for the tooltip
-		var xPosition = parseFloat(d3.select(this).attr("x")) + xScale.rangeBand() / 2;
-		var yPosition = parseFloat(d3.select(this).attr("y")) + 14;
-		
-		//Update Tooltip Position & value
-		d3.select("#tooltip")
-			.style("left", xPosition + "px")
-			.style("top", yPosition + "px")
-			.select("#value")
-			.text(d);
-		d3.select("#tooltip").classed("hidden", false)
-	})
-	.on("mouseout", function() {
-		//Remove the tooltip
-		d3.select("#tooltip").classed("hidden", true);
-	});
-
-
 var xAxisScale = d3.scale.ordinal()
   .domain(d3.range(dataset.edges.length))
   .rangeRoundBands([0, w], 0.); 
 
-
-//Create labels
-/*svg.selectAll("text")
-   .data(dataset.edges, function(d) { return d; })
-   .enter()
-   .append("text")
-   .text(function(d) {
-		return d;
-   })
-   .attr("text-anchor", "middle")
-   .attr("x", function(d, i) {
-		return xAxisScale(i) + xAxisScale.rangeBand()  / 2;
-   })
-   .attr("y", function(d) {
-		return h - 14;
-   })
-   .attr("font-family", "sans-serif") 
-   .attr("font-size", "9px")
-   .attr("fill", "black");
-*/
+var svg = d3.select("#"+dataset.name);
+console.log(dataset.name)
 
 //Axis
 var stepSize = (dataset.edges[1] - dataset.edges[0]).toPrecision(4);
@@ -135,16 +71,6 @@ var xAxis = d3.svg.axis()
   .orient("bottom")
   .ticks(5);
 
-svg.append("g")
-  .attr("class", "x_axis")
-  .attr("transform", "translate(-" + bandSize + "," + (h-25) + ")")
-  .call(xAxis)
-  .selectAll("text")
-  .attr("transform", function(d) {
-    return "translate(5,5) rotate(20)";
-  });
-
-
 //Brushing
 brushX = d3.scale.linear()
   .domain([dataset.edges[0],dataset.edges[dataset.edges.length-1]])
@@ -155,12 +81,99 @@ var  brush = d3.svg.brush()
   .x(brushX)
   .on("brushend", brushed);
   
-svg.append("g")
-  .attr("class", "brush")
-  .attr("id", dataset.name + "MiniBrush")
-  .call(brush)
-  .selectAll('rect')
-  .attr('height', h);
+
+// Check if avaliable
+if (svg[0][0] == null) {
+  svg = d3.select("#histograms")
+      .append("svg")
+      .attr("width", w + 20)
+      .attr("height", h + 50) //+50 for the axis
+      .attr("id", dataset.name);
+
+  
+
+  //Create bars
+  svg.selectAll("rect")
+    .data(dataset.value, function(d) { return d; })
+    .enter()
+    .append("rect")
+    .attr("x", function(d, i) {
+      return xScale(i);
+    })
+    .attr("y", function(d) {
+      return h - lowerMarginY - yScale(d); 
+    })
+    .attr("width", xScale.rangeBand()) 
+    .attr("height", function(d) {
+      return yScale(d);
+    })
+    .attr("fill", function(d) {
+      return "rgb(0, 0, " + (d * 10) + ")";
+    });
+
+  svg.append("g")
+    .attr("class", "x_axis")
+    .attr("transform", "translate(-" + bandSize + "," + (h-25) + ")")
+    .call(xAxis)
+    .selectAll("text")
+    .attr("transform", function(d) {
+      return "translate(5,5) rotate(20)";
+    });
+
+  svg.append("g")
+    .attr("class", "brush")
+    .attr("id", dataset.name + "MiniBrush")
+    .call(brush)
+    .selectAll('rect')
+    .attr('height', h);
+} else {
+  svg.selectAll("rect")
+    .data(dataset.value, function(d) { return d; })
+    .exit()
+    .remove()
+
+  svg.selectAll("rect")
+    .data(dataset.value, function(d) { return d; })
+    .enter()
+    .append("rect")
+    .attr("x", function(d, i) {
+      return xScale(i);
+    })
+    .attr("y", function(d) {
+      return h - lowerMarginY - yScale(d); 
+    })
+    .attr("width", xScale.rangeBand()) 
+    .attr("height", function(d) {
+      return yScale(d);
+    })
+    .attr("fill", function(d) {
+      return "rgb(0, 0, " + (d * 10) + ")";
+    });
+
+  svg.append("g")
+    .attr("class", "brush")
+    .attr("id", dataset.name + "MiniBrush")
+    .call(brush)
+    .selectAll('rect')
+    .attr('height', h);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 hGroup[dataset.name] = {"xScale": xScale, "yScale": yScale, "brush": brush , "brushX" : brushX };

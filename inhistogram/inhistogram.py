@@ -7,6 +7,7 @@ import tornado.httpserver
 import numpy as np
 import json
 
+shownVars = []
 
 def getListVarNames(ndarray):
     return list(ndarray.dtype.names)
@@ -38,7 +39,6 @@ def HistJson( histname, hist):
     return histjson
 
 def genHistogram(varName, filterArray = None, bins = 20, binRange = None):
-    filter
     if binRange is None:
         binRange = (dataset[varName].min() , dataset[varName].max())
     if filterArray is None:
@@ -71,14 +71,19 @@ class WSHandler(tornado.websocket.WebSocketHandler):
     def on_message(self, message):
         print "Received:", message
         message = json.loads(message)
-        varName = message["var"]
-        print varName
+        selVarName = message["var"]
         bin_edges = message["bin_edges"]
-        print bin_edges
         selection = message["selection"]
-        print selection
-        filterArray = basicSetReducer( dataset, varName, selection ) 
-        self.write_message(HistJson(varName,genHistogram(varName, filterArray = filterArray, bins = 20)))
+        if not (selVarName in shownVars):
+            shownVars.append(selVarName)
+
+        for var in shownVars:
+            filterArray = basicSetReducer( dataset, selVarName , selection )
+            var = var.encode("ascii","ignore")
+            hist = genHistogram(var, filterArray = filterArray, bins = 20)
+            jsonmsg = HistJson(var, hist)
+            print jsonmsg
+            self.write_message(jsonmsg)
 
     def on_close(self):
         print "WebSocket closed"
