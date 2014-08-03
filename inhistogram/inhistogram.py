@@ -48,12 +48,12 @@ def genHistogram(varName, filterArray = None, bins = 20, binRange = None):
     return hist
 
 
-
-
-
 def basicSetReducer( dataset, varName, selList ):
 
-    boolArray =  (dataset[varName] > selList[0]) & (dataset[varName] < selList[1])
+    if selList == "":
+        selList = [float("-inf"), float("inf")]
+
+    boolArray =  (dataset[varName] > selList[0] ) & (dataset[varName] < selList[1])
 
     return boolArray
 
@@ -63,13 +63,22 @@ class WSHandler(tornado.websocket.WebSocketHandler):
     def open(self):
         print "WebSocket opened"
         # Send histogram 1 to frontend
-        self.write_message(HistJson('D0_PT',genHistogram('D0_PT', bins = 20)))
+        #self.write_message(HistJson('D0_PT',genHistogram('D0_PT', bins = 20)))
         # Send histogram 2 to frontend
-        self.write_message(HistJson('D0_TAU',genHistogram('D0_TAU', bins = 20)))
+        #self.write_message(HistJson('D0_TAU',genHistogram('D0_TAU', bins = 20)))
 
 
     def on_message(self, message):
         print "Received:", message
+        message = json.loads(message)
+        varName = message["var"]
+        print varName
+        bin_edges = message["bin_edges"]
+        print bin_edges
+        selection = message["selection"]
+        print selection
+        filterArray = basicSetReducer( dataset, varName, selection ) 
+        self.write_message(HistJson(varName,genHistogram(varName, filterArray = filterArray, bins = 20)))
 
     def on_close(self):
         print "WebSocket closed"
@@ -114,8 +123,6 @@ class GetVarInfoHandler(tornado.web.RequestHandler):
 
 
 dataset = np.load("data/LHCbData.npy")
-print HistJson('D0_PT',genHistogram('D0_PT', bins = 20))
-print HistJson('D0_TAU',genHistogram('D0_TAU', bins = 20))
 
 if __name__ == "__main__":
     ws_app = Application()
